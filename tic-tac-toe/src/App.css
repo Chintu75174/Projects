@@ -1,0 +1,32 @@
+
+.board-container{
+  
+ text-align: center;
+}
+.title{
+  margin-top: 50px;
+  color:white;
+  font-size: 30px;
+  display:flexbox;
+  justify-content: center;
+ 
+}
+.reset{
+  width: 200px;
+  height : 80px;
+  border : none;
+  outline :none;
+  cursor:pointer;
+  border-radius: 50px;
+  background:#1f3546;
+  font-size: 26px;
+  color: #26ffcb;
+  margin-top: 25px;
+  margin-bottom:50px ;
+}
+.board{
+ height : 600px;
+ width : 564px;
+ display: flex;
+ margin : auto;
+}
