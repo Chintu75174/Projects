@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>CRUD Ops</title>
+    <link rel="stylesheet" href="CSS/bootstrap.min.css">
+    <script src="js/jquery-1.9.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+</head>
+<body onload="GetData()" >
+
+  <div class="container">
+    <hr>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <tr>
+                    <td>
+                        <lable class="label" style="color: black">ENo</lable>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control" id="txtENo" placeholder="Enter ENo Here">
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <lable class="label" style="color: black">EName</lable>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" id="txtEName" placeholder="Enter EName Here">
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <lable class="label" style="color: black">EAddress</lable>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" id="txtEAddress" placeholder="Enter EAddress Here">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                      <center>
+                        <button type="button" onclick="AddRecord()"
+                        class="btn btn-primary">Add Record
+                        </button>
+                        <button type="button" onclick="ClearBoxes()"
+                        class="btn btn-info">Clear
+                        </button>
+                        <button  type="Button" onclick="change()"
+                        class="btn btn-info" id="myButton">Update
+                        </button>
+                      </center>
+                    </td>
+                </tr>
+            </table>
+            <div class="alert alert-success" id="divForMessages">
+               
+            </div>
+        </div>
+       
+   
+     
+    <hr>
+    <div class="table-responsive">
+        <table id="myTable" class="table table-bordered">
+         
+        </table>
+       </div>
+  </div>
+
+
+  <script>
+
+       
+
+    var emps =  null;
+    var refTomyTable = document.getElementById("myTable");
+    var refTodivForMessages =
+                document.getElementById("divForMessages");
+       
+    function GetData()
+    {
+       
+        var button = document.getElementById("myButton");
+     
+        var helper = new XMLHttpRequest();
+        helper.onreadystatechange = ()=>{
+            if(helper.readyState == 4 &&
+               helper.status == 200)
+               {
+                 emps = JSON.parse(helper.responseText);
+                 refTomyTable.innerHTML = '';
+                 emps.map((emp)=>{
+                    var row = `<tr>
+                                <td>${emp.ENo}</td>
+                                <td>${emp.ENames}</td>
+                                <td>${emp.EAddress}</td>
+                                <td>
+                                    <button class="btn btn-danger"
+                                    onclick="RemoveRecord(${emp.ENo})">
+                                        Remove
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-info"
+                                    onclick="UpdateRecord(${emp.ENo},'${emp.ENames}','${emp.EAddress}')">
+                                    Edit
+                                    </button>                                    
+                                </td>
+                               </tr>`;
+                    refTomyTable.innerHTML =
+                        refTomyTable.innerHTML + row;
+                 });
+               }
+        };
+        helper.open("GET", "http://127.0.0.1:9999/emps");
+        helper.send();
+    }
+   
+//=============================================================================
+
+var   refTotxtENo =
+        document.getElementById("txtENo");
+
+    var refTotxtEName =
+        document.getElementById("txtEName");
+
+    var refTotxtEAddress =
+        document.getElementById("txtEAddress");        
+
+ 
+
+
+//=============================================================================
+function UpdateRecord(ENo,ENames,EAddress){
+    debugger;
+   
+ 
+        refTotxtENo.value=ENo;
+        refTotxtEName.value=ENames;
+        refTotxtEAddress.value=EAddress;
+
+        // var button = document.getElementById("myButton");
+        // button.disabled =false;
+
+    }
+
+//=================================================================================
+    function change()
+    {
+
+
+       
+        var recordadd={
+            "ENo":refTotxtENo.value,
+            "ENames":refTotxtEName.value,
+            "EAddress":refTotxtEAddress.value
+        }
+        console.log(recordadd);
+        var helper=new XMLHttpRequest();
+        helper.onreadystatechange=()=>
+        {
+            if(helper.readyState==4 && helper.status==200)
+            {
+                var responserecived=JSON.parse(helper.responseText);
+
+                if(responserecived.affectedRows!=undefined && responserecived.affectedRows>0 )
+                {
+                    debugger;
+                    console.log("added");
+                    ClearBoxes();
+             
+                    refTomyTable.innerHTML='';
+                   GetData();
+                }
+                else
+                {
+                    info("something went wrong")
+                }
+            }
+        }
+     
+        helper.open("PUT","http://127.0.0.1:9999/emps/"+refTotxtENo.value);
+        helper.setRequestHeader("Content-Type",
+                                "application/json")
+       helper.send(JSON.stringify(recordadd));
+       var refTochangbutton=document.getElementById("myButton");
+   
+     
+
+    }
+
+
+//=======================================================================================
+function RemoveRecord(ENo)
+    {
+        var helper = new XMLHttpRequest();
+        helper.onreadystatechange = ()=>{
+            if(helper.readyState == 4 &&
+               helper.status == 200)
+               {
+                 var responseReceived =
+                    JSON.parse(helper.responseText);
+            if(responseReceived.affectedRows!= undefined
+                && responseReceived.affectedRows>0)
+                 {
+                    setMessage("Record removed successfully!")
+                    GetData();
+                 }
+                 else
+                 {
+                    setMessage("Something went wrong!")
+                 }
+               }
+        };
+       
+        helper.open("DELETE",
+                    "http://127.0.0.1:9999/emps/" + ENo);
+        helper.send()
+    }
+
+
+//======================================================================================
+    function AddRecord()
+    {
+       
+     
+        var refTotxtENo =
+            document.getElementById("txtENo");
+
+        var refTotxtEName =
+            document.getElementById("txtEName");
+
+        var refTotxtEAddress =
+            document.getElementById("txtEAddress");
+
+        var recordToBeAdded = {
+                        "ENo": refTotxtENo.value,
+                        "ENames": refTotxtEName.value,
+                        "EAddress": refTotxtEAddress.value
+                        };
+
+        var helper = new XMLHttpRequest();
+        helper.onreadystatechange = ()=>{
+            if(helper.readyState == 4 &&
+               helper.status == 200)
+               {
+                 var responseReceived =
+                    JSON.parse(helper.responseText);
+            if(responseReceived.affectedRows!= undefined
+                && responseReceived.affectedRows>0)
+                 {
+                    ClearBoxes();
+                    setMessage("Record inserted successfully!")
+                    GetData();
+                 }
+                 else
+                 {
+                    setMessage("Something went wrong!")
+                 }
+               }
+        };
+       
+        helper.open("POST", "http://127.0.0.1:9999/emps");
+        helper.setRequestHeader("Content-Type",
+                                "application/json")
+        helper.send(JSON.stringify(recordToBeAdded))
+    }
+//========================================================================================
+    function ClearBoxes()
+    {
+         
+     
+        var refTotxtENo =
+            document.getElementById("txtENo");
+
+        var refTotxtEName =
+            document.getElementById("txtEName");
+
+        var refTotxtEAddress =
+            document.getElementById("txtEAddress");
+
+        refTotxtENo.value = "";
+        refTotxtEName.value = "";
+        refTotxtEAddress.value = "";
+
+    }
+    function setMessage(message)
+    {
+        refTodivForMessages.innerHTML = `<h1>
+                                        ${message}
+                                        </h1>`;
+        setTimeout(() => {
+            refTodivForMessages.innerHTML = "";
+        }, 3000);  
+    }
+</script>
+</body>
+</html>

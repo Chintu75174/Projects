@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Add</title>
+</head>
+<body onload="GetData()">
+    
+    <center>
+    <div>
+        <table  border="2">
+            <tr>
+               <td>No</td> 
+                <td><input type="number" id="txtNo"></td>
+            <tr>
+               <td>Name</td>  
+               <td><input type="text" id="txtName"></td>
+            </tr>
+            <tr>
+                <td>Address</td>
+                <td><input type="text" id="txtAddress"></td>
+            </tr>
+        </table>
+    </div>  
+    <br>
+    <div><button onclick="AddRecord()">Submit</button> <button>Reset</button></div>
+    <br><br>    
+    <div><table id="myTable" border="2"></table></div>
+</center>
+
+<script>
+     var glass=null;                                         //glass variable is used get the JSON Array
+    var refTomyTable=document.getElementById("myTable");
+    function GetData() {
+        var helper = new XMLHttpRequest();                  //helper object for receive XML HTTP Request function
+        helper.onreadystatechange=()=>{                     //same 4 lines to check the we get response from Server
+            if(helper.readyState==4 && helper.status==200)
+            {
+                glass=JSON.parse(helper.responseText);
+                glass.map((clas)=>{                         // clas is used to iterate the Array into <tr> <td>
+                    var row =`<tr>
+                                <td>${clas.No}</td>
+                                <td>${clas.Name}</td>
+                                <td>${clas.Address}</td>
+                                <td><button onclick="RemoveRecord(${clas.No})">Remove</button></td>      
+                                <td><button onclick="UpdateRecord()">Update</button></td></tr>`;//Update Button
+                                refTomyTable.innerHTML=refTomyTable.innerHTML+row;
+
+                });
+
+
+            }
+       
+        };
+        helper.open("GET","http://127.0.0.1:9999/cred");   //GET is used to select and cred is server URL
+        helper.send();
+    }
+    function AddRecord()
+    {
+        var refTotxtNo=document.getElementById("txtNo");
+        var refTotxtName=document.getElementById("txtName");
+        var refTotxtAddress= document.getElementById("txtAddress");
+        var recordtoAdd={
+            "No":refTotxtNo.value,
+            "Name":refTotxtName.value,
+            "Address":refTotxtAddress.value
+        };
+        var helper= new XMLHttpRequest();
+        helper.onreadystatechange=()=>{
+            if(helper.readyState == 4 && helper.status == 200)
+            {
+                var responseReceived=JSON.parse(helper.responseText);
+
+            }
+         
+        };
+        helper.open("POST","http://127.0.0.1:9999/cred");
+         helper.setRequestHeader("Content-Type",
+                                "application/json")
+        helper.send(JSON.stringify(recordtoAdd))
+
+    }
+    function RemoveRecord(No)
+    {
+        var helper = new XMLHttpRequest();
+        helper.onreadystatechange=()=>{
+            if(helper.readyState ==4 && helper.status ==200)
+            {
+                var responseReceived=JSON.parse(helper.responseText);
+
+            }
+        };
+        helper.open("DELETE","http://127.0.0.1:9999/cred/"+No);
+        helper.send();
+    }
+</script>
+
+</body>
+</html>
